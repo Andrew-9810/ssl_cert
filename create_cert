@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+#Считываю Токен и путь к файлу
+token=$(sed -n '10p' $1)
+domain=$(sed -n '14p' $1)
+
+echo "token: $token"
+echo "domain: $domain"
+echo "short_domain: $1"
+echo "owner: $2"
+
+# Путь проверки владения доменом
+full_domain=$(echo $domain)
+
+# Путь для склейки записать в файл для склейки
+public_html="/home/$2/web/$1/public_html"
+mkdir $(echo "$public_html/.well-known")
+mkdir $(echo "$public_html/.well-known/acme-challenge")
+
+# Формирую путь для создания файла проверки
+change_puth=$(echo $full_domain | sed "s/.*\.ru\///")
+puth_file=$(echo $change_puth | sed "s/\r//")
+# Формирую путь от корня для создания файла проверки
+full_puth=$(echo "$public_html/$puth_file")
+# Создал файл проверки
+touch $full_puth
+# Записал токен в файл проверки
+echo $token > $full_puth
+echo "OK"

@@ -1,0 +1,29 @@
+#!/usr/bin/expect -f
+set timeout -1
+set DOMAIN [lindex $argv 0]
+set OWNER [lindex $argv 1]
+
+# Запуск команды
+spawn certbot certonly --cert-name $DOMAIN --manual
+set certbot_spawn_id $spawn_id
+
+proc create { DOMAIN OWNER } {
+    # Ввел домен переданный при вызове
+    global certbot_spawn_id
+    send -- "$DOMAIN\r"
+    expect -exact "Press Enter to Continue"
+    spawn bash create_cert $DOMAIN $OWNER
+    expect -exact "OK"
+    set spawn_id $certbot_spawn_id
+    send -- "\r"
+}
+
+expect {
+    "Saving debug log to /var/log/letsencrypt/letsencrypt.log\r
+Please enter the domain name(s) you would like on your certificate (comma and/or\r
+space separated) (Enter 'c' to cancel): " { create "$DOMAIN" "$OWNER" }
+    "*(press 'c' to cancel):" { send -- "2\r" }
+}
+
+# Данные записались в файл указаные в файле sw
+expect eof
