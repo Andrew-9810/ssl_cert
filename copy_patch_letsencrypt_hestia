@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+DOMAIN=$1
+OWNER=$2
+cp /etc/letsencrypt/live/$DOMAIN/privkey.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.key
+cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.crt
+cp /etc/letsencrypt/live/$DOMAIN/cert.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.ca
+cat /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.crt /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.ca > /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.pem
+
+sudo systemctl restart nginx
