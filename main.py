@@ -1,4 +1,4 @@
-#!/home/an/Dev/work_update_cert/venv/bin/python3
+#!/home/golovanov_andrey/web/ssl-test.minsocium.ru/public_html/ssl_cert/venv/bin/python3
 import socket
 import subprocess
 import logging
@@ -18,17 +18,19 @@ def run(domain, owner):
     Пишет вывод скриптов / ошибки скриптов в файлы.
     """
     result_skript = subprocess.run(
-        ['./1.sh', f'{domain}', f'{owner}'],
+        ['./switch', f'{domain}', f'{owner}'],
         stderr=subprocess.PIPE, stdout=subprocess.PIPE
     )
+    with open(domain, 'w') as out, open(f'err_{domain}', 'w') as err:
+        out.write(result_skript.stdout.decode('utf-8'))
+        err.write(result_skript.stderr.decode('utf-8'))
+
     result_copy = subprocess.run(
         ['./copy_patch_letsencrypt_hestia', f'{domain}', f'{owner}'],
         stderr=subprocess.PIPE, stdout=subprocess.PIPE
     )
     with open(domain, 'w') as out, open(f'err_{domain}', 'w') as err:
-        out.write(result_skript.stdout.decode('utf-8'))
         out.write(result_copy.stdout.decode('utf-8'))
-        err.write(result_skript.stderr.decode('utf-8'))
         err.write(result_copy.stderr.decode('utf-8'))
 
     if result_skript.stderr is None or result_copy.stderr is None:
@@ -88,9 +90,9 @@ def sert_domain_info(domain, owner):
     except (
         TypeError, ConnectionRefusedError,
         socket.gaierror, OSError, OpenSSL.SSL.Error
-    ):
+    ) as e:
         logging.error(
-            f'Соединение с {domain} не удалось'
+            f'Соединение с {domain} не удалось. {e}'
         )
         return cert_info
 

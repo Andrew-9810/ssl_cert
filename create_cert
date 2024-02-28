@@ -13,8 +13,16 @@ full_domain=$(echo $domain)
 
 # Путь для склейки записать в файл для склейки
 public_html="/home/$2/web/$1/public_html"
-mkdir $(echo "$public_html/.well-known")
-mkdir $(echo "$public_html/.well-known/acme-challenge")
+# Ensure SSL directory exists
+if ! [ -d $(echo "$public_html/.well-known") ]; then
+        mkdir $(echo "$public_html/.well-known")
+        echo '*******'
+fi
+
+if ! [ -d $(echo "$public_html/.well-known/acme-challenge") ]; then
+        mkdir $(echo "$public_html/.well-known/acme-challenge")
+        echo '#######'
+fi
 
 # Формирую путь для создания файла проверки
 change_puth=$(echo $full_domain | sed "s/.*\.ru\///")

@@ -1,9 +1,20 @@
 #!/usr/bin/bash
+# example: copy_patch_letsencrypt_hestia domain.ru user
 DOMAIN=$1
 OWNER=$2
+# Ensure SSL directory exists
+if ! [ -d "/home/$OWNER/conf/web/$DOMAIN/ssl" ]; then
+        mkdir /home/$OWNER/conf/web/$DOMAIN/ssl/
+fi
 cp /etc/letsencrypt/live/$DOMAIN/privkey.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.key
 cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.crt
 cp /etc/letsencrypt/live/$DOMAIN/cert.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.ca
 cat /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.crt /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.ca > /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.pem
+
+# При создании домена hestia-использовать ssl,
+# включить автоматическое перенаправление
+/usr/local/hestia/bin/v-add-web-domain-ssl $OWNER $DOMAIN /home/$OWNER/conf/web/$DOMAIN/ssl
+/usr/local/hestia/bin/v-add-web-domain-ssl-force $OWNER $DOMAIN
+
 
 sudo systemctl restart nginx
