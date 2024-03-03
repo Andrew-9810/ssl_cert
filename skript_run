@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+# sudo ./switch domain.ru>domain.ru 2>err_domain.ru
