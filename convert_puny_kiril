@@ -1,0 +1,29 @@
+#!/usr/bin/bash
+# На вход принимает домен, возвращает либо punycod домен,
+# либо кирилический домен, либо ascii домен
+# punycod домен -> кирилический домен
+# кирилический домен -> punycod домен
+# ascii домен -> ascii домен
+domain=$(echo $1)
+if ! [ $1 == $(echo $1 | sed 's/[А-Яа-Я]//g') ]; then
+  short_domain=$(echo "$domain" | idn)
+elif [[ $domain == *"xn--"* ]]; then
+  ascii_domain=$(echo $1 | sed 's/xn--//g')
+  count_char=$(echo $ascii_domain | sed "s/[^.]//g" | wc -m)
+  utf_domain=$(echo '*****')
+  count=1
+  until [ $count -gt $count_char ]
+  do
+    level=$(echo $ascii_domain | cut -d. -f$count)
+    punycod=$(echo $level | idn -d)
+    if [[ $utf_domain == '*****' ]]; then
+      utf_domain=$(echo $punycod)
+    else 
+      utf_domain="$utf_domain.$punycod"
+    fi
+    count=$(( $count + 1 ))
+  done
+    short_domain=$(echo $utf_domain)
+else short_domain=$1
+fi
+echo $short_domain

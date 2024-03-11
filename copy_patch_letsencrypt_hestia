@@ -1,20 +1,23 @@
 #!/usr/bin/bash
 # example: copy_patch_letsencrypt_hestia domain.ru user
+cyrillic=$(bash ./convert_puny_kiril $1)
 DOMAIN=$1
 OWNER=$2
+path_letsencrypt=$(echo "/etc/letsencrypt/live/$DOMAIN")
+pasth_ssl=$(echo "/home/$OWNER/conf/web/$cyrillic/ssl")
 # Ensure SSL directory exists
-if ! [ -d "/home/$OWNER/conf/web/$DOMAIN/ssl" ]; then
-        mkdir /home/$OWNER/conf/web/$DOMAIN/ssl/
+if ! [ -d "$pasth_ssl" ]; then
+        mkdir "$pasth_ssl"/
 fi
-cp /etc/letsencrypt/live/$DOMAIN/privkey.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.key
-cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.crt
-cp /etc/letsencrypt/live/$DOMAIN/cert.pem /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.ca
-cat /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.crt /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.ca > /home/$OWNER/conf/web/$DOMAIN/ssl/$DOMAIN.pem
+cp $path_letsencrypt/privkey.pem $pasth_ssl/$cyrillic.key
+cp $path_letsencrypt/fullchain.pem $pasth_ssl/$cyrillic.crt
+cp $path_letsencrypt/cert.pem $pasth_ssl/$cyrillic.ca
+cat $pasth_ssl/$cyrillic.crt $pasth_ssl/$cyrillic.ca > $pasth_ssl/$cyrillic.pem
 
 # При создании домена hestia-использовать ssl,
 # включить автоматическое перенаправление
-/usr/local/hestia/bin/v-add-web-domain-ssl $OWNER $DOMAIN /home/$OWNER/conf/web/$DOMAIN/ssl
-/usr/local/hestia/bin/v-add-web-domain-ssl-force $OWNER $DOMAIN
+/usr/local/hestia/bin/v-add-web-domain-ssl $OWNER $cyrillic $pasth_ssl
+/usr/local/hestia/bin/v-add-web-domain-ssl-force $OWNER $cyrillic
 
 
 sudo systemctl restart nginx

@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+sudo ./parce_domain_list domain_list.txt

@@ -1,0 +1,22 @@
+#!/bin/bash
+# Функция получения истечения срока сертификата
+# и сранение строка с текущей датой.
+
+domain=$1
+# Обновить сертификат за [day] дней до окончания.
+dey=30
+
+time_to_live=$(echo | openssl s_client -servername $domain -connect $domain:443 2>/dev/null | openssl x509 -noout -dates 2>/dev/null)
+notAfter=$(echo $time_to_live | cut -d= -f3)
+
+time_end=$(date --date="$notAfter" '+%s')
+time_total=$(date --date="+ $dey days" '+%s')
+
+# Сегодня + 30 дней >= даты оеонсания сертификата, то обновить. 
+if [ "$time_total" -ge "$time_end" ]; then
+# Требует обновленя
+echo 'True'
+else
+# Не требует обновления
+echo 'False'
+fi

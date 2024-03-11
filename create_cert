@@ -1,32 +1,39 @@
 #!/usr/bin/bash
 #Считываю Токен и путь к файлу
-token=$(sed -n '10p' $1)
-domain=$(sed -n '14p' $1)
+# Путь к файлу указан в punycode, конвертирую имя файла в кирилицу
+
+# var1=$(echo "$1")
+cyrillic=$(bash ./convert_puny_kiril $1)
+# echo $cyrillic
+# domain_сyrillic=$(bash ./convert_puny_kiril $var1)
+token=$(sed -n '10p' $cyrillic)
+domain=$(sed -n '14p' $cyrillic)
+
+# Вместить конструкцию если $1 оканчивается на .xn--p1ai, то short_domain -> converter
+
 
 echo "token: $token"
 echo "domain: $domain"
-echo "short_domain: $1"
+echo "short_domain: $cyrillic"
 echo "owner: $2"
 
 # Путь проверки владения доменом
 full_domain=$(echo $domain)
 
 # Путь для склейки записать в файл для склейки
-public_html="/home/$2/web/$1/public_html"
+public_html="/home/$2/web/$cyrillic/public_html"
 # Ensure SSL directory exists
 if ! [ -d $(echo "$public_html/.well-known") ]; then
         mkdir $(echo "$public_html/.well-known")
-        echo '*******'
 fi
 
 if ! [ -d $(echo "$public_html/.well-known/acme-challenge") ]; then
         mkdir $(echo "$public_html/.well-known/acme-challenge")
-        echo '#######'
 fi
 
 # Формирую путь для создания файла проверки
-change_puth=$(echo $full_domain | sed "s/.*\.ru\///")
-puth_file=$(echo $change_puth | sed "s/\r//")
+puth_file=$(echo $full_domain | sed -e "s%http://[A-Za-z0-9.-]*/%%; s%\r%%")
+# puth_file=$(echo $change_puth | sed "s/\r//")
 # Формирую путь от корня для создания файла проверки
 full_puth=$(echo "$public_html/$puth_file")
 # Создал файл проверки

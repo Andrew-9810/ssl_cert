@@ -1,2 +1,3 @@
 #!/usr/bin/bash
-# sudo ./switch domain.ru>domain.ru 2>err_domain.ru
+sudo ./switch opendata.minsocium.ru opendata 1>opendata.minsocium.ru 2>err_opendata.minsocium.ru
+sudo ./copy_patch_letsencrypt_hestia opendata.minsocium.ru opendata

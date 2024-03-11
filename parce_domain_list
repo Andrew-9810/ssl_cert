@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#Скрипт парсит файл domain_list выдает domain owner
+
+domain_list=$(cut -d: -f1- $1)
+
+# Отчистить весь файл за исключеним 1 строки
+run=$(sed '1!d' skript_run)
+echo $run > skript_run
+
+for list in $domain_list
+do
+
+domain=$(echo $list | cut -d: -f1)
+owner=$(echo $list | cut -d: -f2)
+convert_domain=$(./convert_puny_kiril $domain)
+
+check=$(bash ./check_sert $domain)
+return=$(echo "$check")
+    if [ $return == 'True' ]; then
+        echo "sudo ./switch $convert_domain $owner 1>$domain 2>err_$domain" >> skript_run
+        echo "sudo ./copy_patch_letsencrypt_hestia $convert_domain $owner" >> skript_run
+    fi
+done
+bash ./skript_run
